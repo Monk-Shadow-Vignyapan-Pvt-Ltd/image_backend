@@ -1,4 +1,5 @@
 import { SurveyAnswer } from '../models/survey_answer.model.js'; // Import SurveyAnswer model
+import sharp from 'sharp';
 
 // Add a new survey answer
 export const addSurveyAnswer = async (req, res) => {
@@ -21,6 +22,20 @@ export const addSurveyAnswer = async (req, res) => {
             return res.status(400).json({ message: 'Invalid image data', success: false });
         }
 
+        const base64Data = image.split(';base64,').pop();
+        const buffer = Buffer.from(base64Data, 'base64');
+
+        // Resize and compress the image using sharp
+        const compressedBuffer = await sharp(buffer)
+            .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
+            .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+            .toBuffer();
+
+        // Convert back to Base64 for storage (optional)
+        const compressedBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+
+
+
         const existingSurveyAnswer = await SurveyAnswer.findOne({
             $or: [{ email }, { phone }]
         });
@@ -30,7 +45,7 @@ export const addSurveyAnswer = async (req, res) => {
             existingSurveyAnswer.name = name;
             existingSurveyAnswer.phone = phone;
             existingSurveyAnswer.email = email;
-            existingSurveyAnswer.image = image;
+            existingSurveyAnswer.image = compressedBase64;
             existingSurveyAnswer.survey = survey;
 
             // Save the updated contact
@@ -48,7 +63,7 @@ export const addSurveyAnswer = async (req, res) => {
             name,
             phone,
             email,
-            image, // Store the base64 image if provided
+            image:compressedBase64, // Store the base64 image if provided
             survey, // Store survey answers (this could be an object with user responses)
         });
 

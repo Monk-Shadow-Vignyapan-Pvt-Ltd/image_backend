@@ -1,7 +1,7 @@
 import { Banner } from '../models/banner.model.js';
 import cloudinary from "../utils/cloudinary.js";
 import getDataUri from "../utils/datauri.js";
-import multer from 'multer';
+import sharp from 'sharp';
 // import cloudinary from "../utils/cloudinary.js";
 
 export const addBanner = async (req, res) => {
@@ -13,9 +13,21 @@ export const addBanner = async (req, res) => {
             return res.status(400).json({ message: 'Invalid image data', success: false });
         }
 
+        const base64Data = imageBase64.split(';base64,').pop();
+        const buffer = Buffer.from(base64Data, 'base64');
+
+        // Resize and compress the image using sharp
+        const compressedBuffer = await sharp(buffer)
+            .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
+            .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+            .toBuffer();
+
+        // Convert back to Base64 for storage (optional)
+        const compressedBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+
         // Save the base64 image string to MongoDB (or handle storage as needed)
         const banner = new Banner({
-            image: imageBase64, // Store the base64 string in MongoDB
+            image: compressedBase64, // Store the base64 string in MongoDB
             userId
         });
 
@@ -61,8 +73,19 @@ export const updateBanner = async (req, res) => {
         if (!imageBase64 || !imageBase64.startsWith('data:image')) {
             return res.status(400).json({ message: 'Invalid image data', success: false });
         }
+        const base64Data = imageBase64.split(';base64,').pop();
+        const buffer = Buffer.from(base64Data, 'base64');
+
+        // Resize and compress the image using sharp
+        const compressedBuffer = await sharp(buffer)
+            .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
+            .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+            .toBuffer();
+
+        // Convert back to Base64 for storage (optional)
+        const compressedBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
         const banner = await Banner.findByIdAndUpdate(id, {
-            image: imageBase64, // Store the base64 string in MongoDB
+            image: compressedBase64, // Store the base64 string in MongoDB
             userId
         }, { new: true, runValidators: true });
         if (!banner) return res.status(404).json({ message: "Banner not found!", success: false });

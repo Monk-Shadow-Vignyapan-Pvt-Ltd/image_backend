@@ -1,26 +1,57 @@
 import { Service } from '../models/service.model.js';
 import cloudinary from "../utils/cloudinary.js";
 import getDataUri from "../utils/datauri.js";
+import sharp from 'sharp';
 
 // Add a new service
 export const addService = async (req, res) => {
     try {
-        const { serviceName, serviceDescription, serviceImage,serviceType, beforeAfterImage, whyChoose, howWorks,beforeAfterGallary, others, categoryId, serviceEnabled,userId} = req.body;
+        const { serviceName, serviceDescription, serviceImage,serviceType, beforeAfterImage, whyChoose, howWorks,beforeAfterGallary = [], others, categoryId, serviceEnabled,userId} = req.body;
         
         // Validate base64 image data
         if (!serviceImage || !serviceImage.startsWith('data:image') || !beforeAfterImage || !beforeAfterImage.startsWith('data:image')) {
             return res.status(400).json({ message: 'Invalid image data', success: false });
         }
 
+        const compressImage = async (base64Image) => {
+            const base64Data = base64Image.split(';base64,').pop();
+            const buffer = Buffer.from(base64Data, 'base64');
+            const compressedBuffer = await sharp(buffer)
+                .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
+                .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+                .toBuffer();
+            return `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+        };
+
+        // Compress the main service image
+        const compressedServiceBase64 = await compressImage(serviceImage);
+
+        // Compress the before/after image
+        const compressedBeforeAfterBase64 = await compressImage(beforeAfterImage);
+
+        // Compress all images in beforeAfterGallary array, if it exists and is not empty
+        const compressedBeforeAfterGallary = beforeAfterGallary.length
+            ? await Promise.all(
+                  beforeAfterGallary.map(async (image) => {
+                      if (!image.startsWith('data:image')) {
+                          throw new Error('Invalid image in beforeAfterGallary');
+                      }
+                      return await compressImage(image);
+                  })
+              )
+            : [];
+
+
+
         const service = new Service({
             serviceName,
             serviceDescription,
-            serviceImage, // Store the base64 image data
+            serviceImage:compressedServiceBase64, // Store the base64 image data
             serviceType,
-            beforeAfterImage, // Store the before/after base64 image data
+            beforeAfterImage:compressedBeforeAfterBase64, // Store the before/after base64 image data
             whyChoose,
             howWorks,
-            beforeAfterGallary,
+            beforeAfterGallary:compressedBeforeAfterGallary,
             others,
             categoryId,
             serviceEnabled,
@@ -64,22 +95,50 @@ export const getServiceById = async (req, res) => {
 export const updateService = async (req, res) => {
     try {
         const { id } = req.params;
-        const { serviceName, serviceDescription, serviceImage,serviceType, beforeAfterImage, whyChoose, howWorks,beforeAfterGallary, others, categoryId, serviceEnabled,userId } = req.body;
+        const { serviceName, serviceDescription, serviceImage,serviceType, beforeAfterImage, whyChoose, howWorks,beforeAfterGallary = [], others, categoryId, serviceEnabled,userId } = req.body;
 
         // Validate base64 image data
         if (serviceImage && !serviceImage.startsWith('data:image') || beforeAfterImage && !beforeAfterImage.startsWith('data:image')) {
             return res.status(400).json({ message: 'Invalid image data', success: false });
         }
 
+        const compressImage = async (base64Image) => {
+            const base64Data = base64Image.split(';base64,').pop();
+            const buffer = Buffer.from(base64Data, 'base64');
+            const compressedBuffer = await sharp(buffer)
+                .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
+                .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+                .toBuffer();
+            return `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+        };
+
+        // Compress the main service image
+        const compressedServiceBase64 = await compressImage(serviceImage);
+
+        // Compress the before/after image
+        const compressedBeforeAfterBase64 = await compressImage(beforeAfterImage);
+
+        // Compress all images in beforeAfterGallary array, if it exists and is not empty
+        const compressedBeforeAfterGallary = beforeAfterGallary.length
+            ? await Promise.all(
+                  beforeAfterGallary.map(async (image) => {
+                      if (!image.startsWith('data:image')) {
+                          throw new Error('Invalid image in beforeAfterGallary');
+                      }
+                      return await compressImage(image);
+                  })
+              )
+            : [];
+
         const updatedData = {
             serviceName,
             serviceDescription,
-            ...(serviceImage && { serviceImage }), // Only update image if new image is provided
+            ...(compressedServiceBase64 && { serviceImage: compressedServiceBase64 }), // Only update image if new image is provided
             serviceType,
-            ...(beforeAfterImage && { beforeAfterImage }), // Only update before/after image if new image is provided
+            ...(compressedBeforeAfterBase64 && { beforeAfterImage:compressedBeforeAfterBase64 }), // Only update before/after image if new image is provided
             whyChoose,
             howWorks,
-            beforeAfterGallary,
+            beforeAfterGallary:compressedBeforeAfterGallary,
             others,
             categoryId,
             serviceEnabled,

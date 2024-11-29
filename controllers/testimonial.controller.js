@@ -1,6 +1,7 @@
 import { Testimonial } from '../models/testimonial.model.js'; // Adjust the import to match your file structure
 import cloudinary from "../utils/cloudinary.js";  // Assuming you want to upload images to Cloudinary (you can remove if not needed)
 import getDataUri from "../utils/datauri.js";  // Same as above
+import sharp from 'sharp';
 
 
 // Add a new testimonial
@@ -14,11 +15,23 @@ export const addTestimonial = async (req, res) => {
             return res.status(400).json({ message: 'Invalid image data', success: false });
         }
 
+        const base64Data = imageBase64.split(';base64,').pop();
+        const buffer = Buffer.from(base64Data, 'base64');
+
+        // Resize and compress the image using sharp
+        const compressedBuffer = await sharp(buffer)
+            .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
+            .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+            .toBuffer();
+
+        // Convert back to Base64 for storage (optional)
+        const compressedBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+
         // Create and save the testimonial details in MongoDB
         const testimonial = new Testimonial({
             name,
             description,
-            image: imageBase64,  // Store the base64 string (or you could upload to Cloudinary)
+            image: compressedBase64,  // Store the base64 string (or you could upload to Cloudinary)
             serviceId,
             showForAll,
             userId
@@ -68,13 +81,25 @@ export const updateTestimonial = async (req, res) => {
             return res.status(400).json({ message: 'Invalid image data', success: false });
         }
 
+        const base64Data = imageBase64.split(';base64,').pop();
+        const buffer = Buffer.from(base64Data, 'base64');
+
+        // Resize and compress the image using sharp
+        const compressedBuffer = await sharp(buffer)
+            .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
+            .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+            .toBuffer();
+
+        // Convert back to Base64 for storage (optional)
+        const compressedBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+
         const updatedData = {
             name,
             description,
             serviceId,
             showForAll,
             userId,
-            ...(imageBase64 && { image: imageBase64 }) // Update image only if a new image is provided
+            ...(compressedBase64 && { image: compressedBase64 }) // Update image only if a new image is provided
         };
 
         const testimonial = await Testimonial.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });
