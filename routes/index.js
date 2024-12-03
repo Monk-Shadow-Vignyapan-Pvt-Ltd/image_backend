@@ -12,6 +12,7 @@ import surveyRoute from "./survey.route.js";
 import surveyAnswerRoute from "./survey_answer.route.js";
 import statusRoute from "./status.route.js";
 import seoRoute from "./seo.route.js";
+import newsletterRoute from "./newsletter.route.js";
 
 const routes = {
   categoryRoute,
@@ -27,7 +28,8 @@ const routes = {
   surveyRoute,
   surveyAnswerRoute,
   statusRoute,
-  seoRoute
+  seoRoute,
+  newsletterRoute
 };
 
 export default routes;

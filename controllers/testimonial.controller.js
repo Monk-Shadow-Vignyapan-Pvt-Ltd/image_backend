@@ -2,7 +2,8 @@ import { Testimonial } from '../models/testimonial.model.js'; // Adjust the impo
 import cloudinary from "../utils/cloudinary.js";  // Assuming you want to upload images to Cloudinary (you can remove if not needed)
 import getDataUri from "../utils/datauri.js";  // Same as above
 import sharp from 'sharp';
-
+import { Service } from '../models/service.model.js';
+import { SubService } from '../models/sub_service.model.js';
 
 // Add a new testimonial
 export const addTestimonial = async (req, res) => {
@@ -121,5 +122,74 @@ export const deleteTestimonial = async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Failed to delete testimonial', success: false });
+    }
+};
+
+export const getTestimonialsHome = async (req, res) => {
+    try {
+
+        const testimonials = await Testimonial.aggregate([
+            { $sample: { size: 10 } }, // Randomly sample 10 testimonials
+            {
+                $addFields: {
+                    selectedServiceId: { $arrayElemAt: ['$serviceId', 0] }, // Extract the first serviceId from the array
+                    debugServiceId: '$serviceId' // For debugging purposes, show the original serviceId
+                }
+            },
+            {
+                $addFields: {
+                    // Convert the selectedServiceId to ObjectId if it's a string
+                    selectedServiceId: {
+                        $toObjectId: '$selectedServiceId' // Convert string to ObjectId
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'services', // Name of the services collection
+                    localField: 'selectedServiceId', // Use the converted ObjectId as the local field
+                    foreignField: '_id', // Match against the _id in the services collection
+                    as: 'serviceDetails'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$serviceDetails', // Unwind the serviceDetails array to get one service per testimonial
+                    preserveNullAndEmptyArrays: true // Keep testimonials even if no matching service is found
+                }
+            },
+            {
+                $lookup: {
+                    from: 'subservices', // Name of the subServices collection
+                    localField: 'selectedServiceId', // Match serviceId with the subServices collection
+                    foreignField: '_id', // Assuming subServices collection has serviceId field
+                    as: 'subServiceDetails'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$subServiceDetails', // Unwind the subServiceDetails array to get details
+                    preserveNullAndEmptyArrays: true // Keep testimonials even if no matching subService is found
+                }
+            },
+            {
+                $project: {
+                    // Retain all existing fields from the Testimonial
+                    _id: 1,
+                    name: 1,
+                    description: 1,
+                    image: { $ifNull: ['$serviceDetails.serviceImage', { $ifNull: ['$subServiceDetails.subServiceImage', '$image']}] },  // Keep original image field from the Testimonial
+                    serviceId: 1,
+                    showForAll: 1,
+                    userId: 1,
+                }
+            }
+        ]);
+        
+        if (!testimonials) return res.status(404).json({ message: "Testimonials not found", success: false });
+        return res.status(200).json({ testimonials });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Failed to fetch testimonials', success: false });
     }
 };

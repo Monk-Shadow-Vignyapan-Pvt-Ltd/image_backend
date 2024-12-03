@@ -166,3 +166,30 @@ export const deleteService = async (req, res) => {
         res.status(500).json({ message: 'Failed to delete service', success: false });
     }
 };
+
+
+export const getServicesFrontend = async (req, res) => {
+    try {
+        const services = await Service.find()
+        .select('serviceName categoryId serviceType serviceEnabled')
+        .populate('categoryId'); // Populating category data
+        if (!services) return res.status(404).json({ message: "Services not found", success: false });
+        return res.status(200).json({ services });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Failed to fetch services', success: false });
+    }
+};
+
+export const getServicesBeforeAfter = async (req, res) => {
+    try {
+        const services = await Service.find()
+        .select('serviceName beforeAfterGallary serviceEnabled');
+        if (!services) return res.status(404).json({ message: "Services not found", success: false });
+        return res.status(200).json({ services });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Failed to fetch services', success: false });
+    }
+};
+

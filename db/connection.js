@@ -14,7 +14,7 @@ const connectDB = async () => {
         console.log('mongodb connected successfully');
         
         // Initialize default statuses (if required)
-        await initializeDefaultStatuses();
+         await initializeDefaultStatuses();
 
         const defaultAdminEmail = "admin@gmail.com";
         const defaultAdminPassword = "admin123"; // Plaintext password (for example)
@@ -33,15 +33,7 @@ const connectDB = async () => {
                 isAdmin: true,
                 roles: [
                     { name: "Users", actions: { permission: true } },
-                    { name: "Banner", actions: { permission: true } },
-                    { name: "Category", actions: { permission: true } },
-                    { name: "Service", actions: { permission: true } },
-                    { name: "Testimonial", actions: { permission: true } },
-                    { name: "FAQs", actions: { permission: true } },
-                    { name: "Blogs", actions: { permission: true } },
                     { name: "Contact", actions: { permission: true } },
-                    { name: "Survey", actions: { permission: true } },
-                    { name: "Seo", actions: { permission: true } },
                 ],
             });
 

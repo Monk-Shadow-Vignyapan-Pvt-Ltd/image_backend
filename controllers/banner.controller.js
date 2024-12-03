@@ -6,7 +6,7 @@ import sharp from 'sharp';
 
 export const addBanner = async (req, res) => {
     try {
-        const { imageBase64,userId } = req.body;
+        const { imageBase64,userId,bannerUrl } = req.body;
 
         // Validate base64 data (make sure it's an image)
         if (!imageBase64 || !imageBase64.startsWith('data:image')) {
@@ -28,6 +28,7 @@ export const addBanner = async (req, res) => {
         // Save the base64 image string to MongoDB (or handle storage as needed)
         const banner = new Banner({
             image: compressedBase64, // Store the base64 string in MongoDB
+            bannerUrl,
             userId
         });
 
@@ -67,7 +68,7 @@ export const updateBanner = async (req, res) => {
     try {
         const { id } = req.params;
         const updatedData = req.body;
-        const { imageBase64,userId } = req.body;
+        const { imageBase64,userId,bannerUrl } = req.body;
 
         // Validate base64 data (make sure it's an image)
         if (!imageBase64 || !imageBase64.startsWith('data:image')) {
@@ -86,6 +87,7 @@ export const updateBanner = async (req, res) => {
         const compressedBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
         const banner = await Banner.findByIdAndUpdate(id, {
             image: compressedBase64, // Store the base64 string in MongoDB
+            bannerUrl,
             userId
         }, { new: true, runValidators: true });
         if (!banner) return res.status(404).json({ message: "Banner not found!", success: false });

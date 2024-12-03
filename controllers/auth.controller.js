@@ -28,7 +28,8 @@ export const addUser = async (req, res) => {
     if (avatar && !avatar.startsWith('data:image')) {
         return res.status(400).json({ message: 'Invalid image data', success: false });
       }
-
+      let compressedBase64 = "";
+    if(avatar){
       const base64Data = avatar.split(';base64,').pop();
       const buffer = Buffer.from(base64Data, 'base64');
 
@@ -39,8 +40,10 @@ export const addUser = async (req, res) => {
           .toBuffer();
 
       // Convert back to Base64 for storage (optional)
-      const compressedBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
-    const newUser = new User({ email, password: hashedPassword, username, avatar:compressedBase64,isAdmin,roles });
+       compressedBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+    }
+      
+    const newUser = new User({ email, password: hashedPassword, username, avatar:avatar ? compressedBase64 : avatar,isAdmin,roles });
 
     const savedUser = await newUser.save();
     res.json(savedUser);

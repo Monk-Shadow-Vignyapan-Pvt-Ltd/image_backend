@@ -6,6 +6,10 @@ const bannerSchema = new mongoose.Schema({
         type: String, // Store image as base64 or use a URL reference
         required: true,
       },
+    bannerUrl:{
+      type: String, // Store image as base64 or use a URL reference
+      required: false,
+    },
     userId:{
       type: mongoose.Schema.Types.ObjectId, 
         required:false

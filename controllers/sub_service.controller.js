@@ -88,7 +88,8 @@ export const getSubServiceById = async (req, res) => {
 export const getSubServicesByServiceId = async (req, res) => {
     try {
         const { id } = req.params; // Extract the service ID from the request parameters
-        const subServices = await SubService.find({ serviceId: id }); // Correctly query by serviceId
+        const subServices = await SubService.find({ serviceId: id })
+        .select('subServiceName subServiceDescription subServiceImage subServiceEnabled'); // Correctly query by serviceId
         if (!subServices.length) {
             return res.status(404).json({ message: "Subservices not found!", success: false });
         }
@@ -170,3 +171,30 @@ export const deleteSubService = async (req, res) => {
         res.status(500).json({ message: 'Failed to delete subservice', success: false });
     }
 };
+
+export const getSubServicesFrontend = async (req, res) => {
+    try {
+        const subServices = await SubService.find()
+        .select('subServiceName serviceId subServiceEnabled')
+        .populate('serviceId'); // Populating category data
+        if (!subServices) return res.status(404).json({ message: "Sub Services not found", success: false });
+        return res.status(200).json({ subServices });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Failed to fetch sub services', success: false });
+    }
+};
+
+export const getSubServicesBeforeAfter = async (req, res) => {
+    try {
+        const subServices = await SubService.find()
+        .select('subServiceName beforeAfterGallary subServiceEnabled');
+        if (!subServices) return res.status(404).json({ message: "Sub Services not found", success: false });
+        return res.status(200).json({ subServices });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Failed to fetch sub services', success: false });
+    }
+};
+
+
