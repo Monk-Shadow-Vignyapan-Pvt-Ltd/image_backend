@@ -5,9 +5,6 @@ import { User } from "../models/user.model.js"; // Adjust path as needed
 import fs from 'fs';
 import archiver from 'archiver'; // Import archiver for zip compression
 
-// Example: Your Mongoose model for the collection you want to query
-import { SubService } from "../models/sub_service.model.js";
-
 const connectDB = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI);

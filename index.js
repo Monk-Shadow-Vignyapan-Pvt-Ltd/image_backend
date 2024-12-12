@@ -31,20 +31,18 @@ app.options("*", cors()); // Allow preflight requests
 
 // api's route
 app.use("/api/v1/auth", routes.authRoute);
-// app.use("/api/v1/categories", routes.categoryRoute);
-// app.use("/api/v1/banners", routes.bannerRoute);
-// app.use("/api/v1/services", routes.serviceRoute);
-// app.use("/api/v1/testimonials", routes.testimonialRoute);
-// app.use("/api/v1/faqs", routes.faqRoute);
-// app.use("/api/v1/blogs", routes.blogRoute);
+app.use("/api/v1/testimonials", routes.testimonialRoute);
+app.use("/api/v1/faqs", routes.faqRoute);
 app.use("/api/v1/contacts", routes.contactRoute);
-// app.use("/api/v1/subServices", routes.subServiceRoute);
 app.use("/api/v1/followups", routes.contactFollowupRoute);
-// app.use("/api/v1/surveys", routes.surveyRoute);
-// app.use("/api/v1/survey-answers", routes.surveyAnswerRoute);
- app.use("/api/v1/statuses", routes.statusRoute);
-// app.use("/api/v1/seos", routes.seoRoute);
-// app.use("/api/v1/newsletters", routes.newsletterRoute);
+app.use("/api/v1/statuses", routes.statusRoute);
+app.use("/api/v1/seos", routes.seoRoute);
+app.use("/api/v1/softwares", routes.softwareRoute);
+app.use("/api/v1/mentors", routes.mentorRoute);
+app.use("/api/v1/placements", routes.placementRoute);
+app.use("/api/v1/careers", routes.careerRoute);
+app.use("/api/v1/parentCourses", routes.parentCourseRoute);
+app.use("/api/v1/courses", routes.courseRoute);
 
 app.listen(PORT, () => {
     console.log(`server running at port ${PORT}`);
