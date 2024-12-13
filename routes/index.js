@@ -11,6 +11,7 @@ import placementRoute from "./placement.route.js";
 import careerRoute from "./career.route.js";
 import parentCourseRoute from "./parent_course.route.js";
 import courseRoute from "./course.route.js";
+import demoRoute from "./demo.route.js";
 
 const routes = {
   testimonialRoute,
@@ -25,7 +26,8 @@ const routes = {
   placementRoute,
   careerRoute,
   parentCourseRoute,
-  courseRoute
+  courseRoute,
+  demoRoute
 };
 
 export default routes;

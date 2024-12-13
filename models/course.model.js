@@ -34,6 +34,10 @@ const courseSchema = new mongoose.Schema({
         type:mongoose.Schema.Types.Mixed,
         required:true,
     },
+    mentors:{
+            type:mongoose.Schema.Types.Mixed,
+            required:true,
+        },
     isClubCourse:{
         type:Boolean,
         required:true,
