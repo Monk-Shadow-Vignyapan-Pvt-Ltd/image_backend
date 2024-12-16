@@ -6,7 +6,7 @@ import sharp from 'sharp';
 // Add a new testimonial
 export const addTestimonial = async (req, res) => {
     try {
-        const { name, description, imageBase64, serviceId, showForAll,userId } = req.body;
+        const { name, description, imageBase64, courseId, showForAll,userId } = req.body;
 
 
         // Validate base64 image data
@@ -31,7 +31,7 @@ export const addTestimonial = async (req, res) => {
             name,
             description,
             image: compressedBase64,  // Store the base64 string (or you could upload to Cloudinary)
-            serviceId,
+            courseId,
             showForAll,
             userId
         });
@@ -73,7 +73,7 @@ export const getTestimonialById = async (req, res) => {
 export const updateTestimonial = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, imageBase64, serviceId, showForAll,userId } = req.body;
+        const { name, description, imageBase64, courseId, showForAll,userId } = req.body;
 
         // Validate base64 image data if provided
         if (imageBase64 && !imageBase64.startsWith('data:image')) {
@@ -95,7 +95,7 @@ export const updateTestimonial = async (req, res) => {
         const updatedData = {
             name,
             description,
-            serviceId,
+            courseId,
             showForAll,
             userId,
             ...(compressedBase64 && { image: compressedBase64 }) // Update image only if a new image is provided

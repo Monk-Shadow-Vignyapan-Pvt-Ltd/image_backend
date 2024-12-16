@@ -30,6 +30,26 @@ const courseSchema = new mongoose.Schema({
         type: Boolean,
         required: true,
       },
+    difficulty : {
+      type: String,
+      required: true,
+    },
+    mode: {
+      type: String,
+      required: true,
+    },
+    thisCourseIsFor:{
+      type:mongoose.Schema.Types.Mixed,
+      required:true,
+    },
+    assignments:{
+      type:mongoose.Schema.Types.Mixed,
+      required:true,
+    },
+    hiredBy:{
+      type:mongoose.Schema.Types.Mixed,
+      required:true,
+  },
     softwares:{
         type:mongoose.Schema.Types.Mixed,
         required:true,

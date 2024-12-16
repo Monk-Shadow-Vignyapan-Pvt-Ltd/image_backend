@@ -1,12 +1,16 @@
 // models/Doctor.js
 import mongoose from "mongoose";
 
-const placementSchema = new mongoose.Schema({
-    placementImage: {
+const studentsPlacedSchema = new mongoose.Schema({
+    studentName: {
         type: String,
         required: true,
       },
-    placementName: {
+    studentImage: {
+        type: String,
+        required: true,
+      },
+    wherePlaced: {
         type: String,
         required: true,
       },
@@ -17,4 +21,4 @@ const placementSchema = new mongoose.Schema({
     
 }, { timestamps: true });
 
-export const Placement = mongoose.model("Placement", placementSchema);
+export const StudentsPlaced = mongoose.model("StudentsPlaced", studentsPlacedSchema);

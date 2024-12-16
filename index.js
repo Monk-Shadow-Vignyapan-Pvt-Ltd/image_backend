@@ -44,6 +44,9 @@ app.use("/api/v1/careers", routes.careerRoute);
 app.use("/api/v1/parentCourses", routes.parentCourseRoute);
 app.use("/api/v1/courses", routes.courseRoute);
 app.use("/api/v1/demos", routes.demoRoute);
+app.use("/api/v1/testimonials", routes.testimonialRoute);
+app.use("/api/v1/blogs", routes.blogRoute);
+app.use("/api/v1/studentsPlaced", routes.studentPlacedRoute);
 
 app.listen(PORT, () => {
     console.log(`server running at port ${PORT}`);

@@ -5,9 +5,9 @@ import sharp from 'sharp';
 // Add a new placement entry
 export const addPlacement = async (req, res) => {
     try {
-        const { placementImage, userId } = req.body;
+        const { placementImage,placementName, userId } = req.body;
 
-        if (!placementImage || !placementImage.startsWith('data:image')) {
+        if (!placementImage || !placementName || !placementImage.startsWith('data:image')) {
             return res.status(400).json({ message: 'Invalid image data', success: false });
         }
 
@@ -26,6 +26,7 @@ export const addPlacement = async (req, res) => {
         // Create and save the placement details in MongoDB
         const placement = new Placement({
             placementImage: compressedBase64,
+            placementName,
             userId
         });
 
@@ -70,7 +71,7 @@ export const getPlacementById = async (req, res) => {
 export const updatePlacement = async (req, res) => {
     try {
         const { id } = req.params;
-        const { placementImage, userId } = req.body;
+        const { placementImage,placementName, userId } = req.body;
 
         // Validate and process image if provided
         let compressedBase64;
@@ -93,6 +94,7 @@ export const updatePlacement = async (req, res) => {
 
         const updatedData = {
             ...(compressedBase64 && { placementImage: compressedBase64 }),
+            placementName,
             userId
         };
 

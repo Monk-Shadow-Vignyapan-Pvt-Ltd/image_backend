@@ -7,7 +7,7 @@ const testimonialSchema = new mongoose.Schema({
         type: String, // Store image as base64 or use a URL reference
         required: true,
       },
-    serviceId: {
+    courseId: {
         type:mongoose.Schema.Types.Mixed,
         required:true,
     },
