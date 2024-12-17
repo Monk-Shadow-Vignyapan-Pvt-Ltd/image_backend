@@ -14,6 +14,10 @@ const mentorSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
+    mentorDescription: {
+        type: String,
+        required: true,
+      },
     userId:{
         type: mongoose.Schema.Types.ObjectId, 
           required:false

@@ -5,7 +5,7 @@ import sharp from 'sharp';
 // Add a new mentor entry
 export const addMentor = async (req, res) => {
     try {
-        const { mentorName, mentorImage, mentorDegree, userId } = req.body;
+        const { mentorName, mentorImage, mentorDegree,mentorDescription, userId } = req.body;
 
         if (!mentorImage || !mentorImage.startsWith('data:image')) {
             return res.status(400).json({ message: 'Invalid image data', success: false });
@@ -28,6 +28,7 @@ export const addMentor = async (req, res) => {
             mentorName,
             mentorImage: compressedBase64,
             mentorDegree,
+            mentorDescription,
             userId
         });
 
@@ -68,7 +69,7 @@ export const getMentorById = async (req, res) => {
 export const updateMentor = async (req, res) => {
     try {
         const { id } = req.params;
-        const { mentorName, mentorImage, mentorDegree, userId } = req.body;
+        const { mentorName, mentorImage, mentorDegree,mentorDescription, userId } = req.body;
 
         // Validate base64 image data if provided
         let compressedBase64;
@@ -92,6 +93,7 @@ export const updateMentor = async (req, res) => {
         const updatedData = {
             mentorName,
             mentorDegree,
+            mentorDescription,
             ...(compressedBase64 && { mentorImage: compressedBase64 }), // Update image only if a new image is provided
             userId
         };
