@@ -3,10 +3,10 @@ import { Contact } from '../models/contact.model.js'; // Adjust path based on yo
 // Add a new contact
 export const addContact = async (req, res) => {
     try {
-        const { name, phone, email, course, isOnline, isContactClose ,userId} = req.body;
+        const { name, phone, email, subject,message, isOnline, isContactClose ,userId} = req.body;
 
         // Validate required fields
-        if (!name || !phone || !email || !course ) {
+        if (!name || !phone || !email || !subject || !message ) {
             return res.status(400).json({ 
                 message: 'Please provide all required fields', 
                 success: false 
@@ -23,7 +23,8 @@ export const addContact = async (req, res) => {
             existingContact.name = name;
             existingContact.phone = phone;
             existingContact.email = email;
-            existingContact.course = course;
+            existingContact.subject = subject;
+            existingContact.message = message;
             existingContact.isContactClose = isContactClose;
             existingContact.isOnline = isOnline;
             existingContact.userId=userId;
@@ -42,7 +43,8 @@ export const addContact = async (req, res) => {
             name,
             phone,
             email,
-            course,
+            subject,
+            message,
             isOnline,
             isContactClose,
             userId
@@ -83,9 +85,9 @@ export const getContacts = async (req, res) => {
 export const updateContact = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, phone, email, course, isOnline, isContactClose,userId } = req.body;
+        const { name, phone, email, subject,message, isOnline, isContactClose,userId } = req.body;
 
-        const updatedData = {name, phone, email, course, isOnline, isContactClose,userId};
+        const updatedData = {name, phone, email, subject,message, isOnline, isContactClose,userId};
 
         const contact = await Contact.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });
         if (!contact) return res.status(404).json({ message: "Contact not found!", success: false });

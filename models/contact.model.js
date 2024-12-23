@@ -18,8 +18,13 @@ const contactSchema = new mongoose.Schema({
         trim: true,
         match: [/\S+@\S+\.\S+/, 'Please enter a valid email address'], // Basic email validation
     },
-    course: {
-        type: mongoose.Schema.Types.Mixed,
+    subject: {
+        type: String,
+        required: false,
+        trim: true,
+    },
+    message: {
+        type: String,
         required: true,
         trim: true,
     },
