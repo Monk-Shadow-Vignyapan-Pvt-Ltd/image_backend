@@ -24,7 +24,7 @@ const courseSchema = new mongoose.Schema({
       },
     nextBatchStartDate: {
         type: Date,
-        required: true,
+        required: false,
       },
     isDemoAvailable: {
         type: Boolean,
@@ -42,14 +42,6 @@ const courseSchema = new mongoose.Schema({
       type:mongoose.Schema.Types.Mixed,
       required:true,
     },
-    assignments:{
-      type:mongoose.Schema.Types.Mixed,
-      required:true,
-    },
-    hiredBy:{
-      type:mongoose.Schema.Types.Mixed,
-      required:true,
-  },
     softwares:{
         type:mongoose.Schema.Types.Mixed,
         required:true,
@@ -62,10 +54,7 @@ const courseSchema = new mongoose.Schema({
         type:Boolean,
         required:true,
     },
-    avgCtc:{
-        type: String,
-        required: true,
-    },
+    
     modules:{
         type:mongoose.Schema.Types.Mixed,
         required:true,
