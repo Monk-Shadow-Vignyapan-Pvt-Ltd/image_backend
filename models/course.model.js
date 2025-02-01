@@ -40,7 +40,7 @@ const courseSchema = new mongoose.Schema({
     },
     thisCourseIsFor:{
       type:mongoose.Schema.Types.Mixed,
-      required:true,
+      required:false,
     },
     softwares:{
         type:mongoose.Schema.Types.Mixed,
