@@ -24,7 +24,7 @@ const courseSchema = new mongoose.Schema({
       },
     nextBatchStartDate: {
         type: Date,
-        required: false,
+        default: null,
       },
     isDemoAvailable: {
         type: Boolean,
