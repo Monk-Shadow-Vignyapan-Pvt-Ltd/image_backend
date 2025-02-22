@@ -54,7 +54,10 @@ const courseSchema = new mongoose.Schema({
         type:Boolean,
         required:true,
     },
-    
+    assignments:{
+      type:String,
+      required:false
+    },
     modules:{
         type:mongoose.Schema.Types.Mixed,
         required:false,

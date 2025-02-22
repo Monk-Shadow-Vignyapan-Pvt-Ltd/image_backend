@@ -20,6 +20,7 @@ export const addCourse = async (req, res) => {
             mentors,
             isClubCourse, 
             modules,
+            assignments,
             courseEnabled, 
             others, 
             userId 
@@ -56,6 +57,7 @@ export const addCourse = async (req, res) => {
             mentors,
             isClubCourse,
             modules,
+            assignments,
             courseEnabled,
             others,
             userId
@@ -117,6 +119,7 @@ export const updateCourse = async (req, res) => {
             mentors, 
             isClubCourse, 
             modules,
+            assignments,
             courseEnabled, 
             others, 
             userId 
@@ -155,6 +158,7 @@ export const updateCourse = async (req, res) => {
             mentors,
             isClubCourse,
             modules,
+            assignments,
             courseEnabled,
             others,
             userId
