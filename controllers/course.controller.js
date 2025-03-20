@@ -189,3 +189,39 @@ export const deleteCourse = async (req, res) => {
         res.status(500).json({ message: 'Failed to delete course', success: false });
     }
 };
+
+export const cloneCourse = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Find the service to clone
+        const courseToClone = await Course.findById(id);
+        if (!courseToClone) {
+            return res.status(404).json({ message: "Course to clone not found!", success: false });
+        }
+
+        // Remove the _id field to avoid duplication error
+        const clonedData = { ...courseToClone.toObject() };
+        delete clonedData._id;
+
+        // Generate a new unique serviceName
+        let newCourseName = courseToClone.courseName;
+        let suffix = 1;
+
+        while (await Course.findOne({ courseName: newCourseName })) {
+            suffix++;
+            newCourseName = `${courseToClone.courseName}-${suffix}`;
+        }
+
+        clonedData.courseName = newCourseName;
+
+        // Create a new service with the cloned data
+        const clonedCourse = new Course(clonedData);
+        await clonedCourse.save();
+
+        return res.status(201).json({ clonedCourse, success: true });
+    } catch (error) {
+        console.error('Error cloning course:', error);
+        res.status(500).json({ message: 'Failed to clone course', success: false });
+    }
+};
