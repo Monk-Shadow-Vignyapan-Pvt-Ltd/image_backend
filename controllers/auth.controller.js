@@ -149,12 +149,13 @@ export const updateUser = async (req, res) => {
     
       
           const hashedPassword = await bcryptjs.hash(password, 8);
+          let compressedBase64 = "";
       
           if (avatar && !avatar.startsWith('data:image')) {
               return res.status(400).json({ message: 'Invalid image data', success: false });
             }
-
-            const base64Data = avatar.split(';base64,').pop();
+           if(avatar){
+           const base64Data = avatar.split(';base64,').pop();
             const buffer = Buffer.from(base64Data, 'base64');
       
             // Resize and compress the image using sharp
@@ -164,7 +165,9 @@ export const updateUser = async (req, res) => {
                 .toBuffer();
       
             // Convert back to Base64 for storage (optional)
-            const compressedBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;  
+             compressedBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+           }
+              
 
         const updatedData = { email, password: hashedPassword, username, avatar:compressedBase64,isAdmin,roles };
 
