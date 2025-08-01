@@ -52,6 +52,17 @@ export const getMentors = async (req, res) => {
     }
 };
 
+export const getAllMentors = async (req, res) => {
+    try {
+        const mentors = await Mentor.find().select('-mentorImage');
+        if (!mentors) return res.status(404).json({ message: "Mentors not found", success: false });
+        return res.status(200).json({ mentors });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Failed to fetch mentors', success: false });
+    }
+};
+
 // Get mentor by ID
 export const getMentorById = async (req, res) => {
     try {

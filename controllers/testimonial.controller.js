@@ -47,7 +47,7 @@ export const addTestimonial = async (req, res) => {
 // Get all testimonials
 export const getTestimonials = async (req, res) => {
     try {
-        const testimonials = await Testimonial.find();
+        const testimonials = await Testimonial.find().sort({ createdAt: -1 });
         if (!testimonials) return res.status(404).json({ message: "Testimonials not found", success: false });
         return res.status(200).json({ testimonials });
     } catch (error) {

@@ -51,6 +51,17 @@ export const getSoftwares = async (req, res) => {
     }
 };
 
+export const getAllSoftwares = async (req, res) => {
+    try {
+        const softwares = await Software.find().select('-softwareImage');
+        if (!softwares) return res.status(404).json({ message: "Softwares not found", success: false });
+        return res.status(200).json({ softwares });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Failed to fetch softwares', success: false });
+    }
+};
+
 // Get software by ID
 export const getSoftwareById = async (req, res) => {
     try {

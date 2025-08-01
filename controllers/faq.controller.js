@@ -30,7 +30,7 @@ export const addFaq = async (req, res) => {
 // Get all FAQs
 export const getFaqs = async (req, res) => {
     try {
-        const faqs = await Faq.find();
+        const faqs = await Faq.find().sort({ createdAt: -1 });
         if (!faqs) return res.status(404).json({ message: "FAQs not found", success: false });
         return res.status(200).json({ faqs });
     } catch (error) {

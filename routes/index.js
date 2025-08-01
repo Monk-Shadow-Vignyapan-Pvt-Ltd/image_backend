@@ -14,6 +14,9 @@ import courseRoute from "./course.route.js";
 import demoRoute from "./demo.route.js";
 import blogRoute from "./blog.route.js";
 import studentPlacedRoute from "./studentsPlaced.route.js";
+import studentRoute from "./student.route.js";
+import batchRoute from "./batch.route.js";
+
 
 const routes = {
   testimonialRoute,
@@ -31,7 +34,9 @@ const routes = {
   courseRoute,
   demoRoute,
   blogRoute,
-  studentPlacedRoute
+  studentPlacedRoute,
+  studentRoute,
+  batchRoute
 };
 
 export default routes;
