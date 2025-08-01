@@ -36,6 +36,7 @@ const contactSchema = new mongoose.Schema({
         type: Boolean,
         required: true,
     },
+    followups: { type: mongoose.Schema.Types.Mixed, required: false },
     userId:{
         type: mongoose.Schema.Types.ObjectId, 
           required:false
