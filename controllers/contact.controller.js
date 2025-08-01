@@ -72,16 +72,50 @@ export const addContact = async (req, res) => {
 
 // Get all contacts
 export const getContacts = async (req, res) => {
-    try {
-        const contacts = await Contact.find();
-        if (!contacts ) {
-            return res.status(404).json({ message: "No contacts found", success: false });
-        }
-        return res.status(200).json({ contacts });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: 'Failed to fetch contacts', success: false });
+  try {
+    const { page = 1, search = "", } = req.query;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    // Create a search filter
+    const searchFilter = {};
+
+    // Apply search filter
+    if (search) {
+      searchFilter.$or = [
+        { name: { $regex: search, $options: "i" } },
+         { email: { $regex: search, $options: "i" } },
+         { subject: { $regex: search, $options: "i" } },
+          { message: { $regex: search, $options: "i" } },
+        { phone: { $regex: search, $options: "i" } },
+       
+      ];
     }
+
+    // Fetch all matching products (without pagination)
+    const allContacts = await Contact.find(searchFilter);
+
+    // Apply pagination
+    const paginatedContacts = await Contact.find(searchFilter)
+      .sort({ _id: -1 }) // Sort newest first
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
+      contacts: paginatedContacts,
+      success: true,
+      pagination: {
+        currentPage: Number(page),
+        totalPages: Math.ceil(allContacts.length / limit),
+        totalContacts: allContacts.length,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching contacts:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch contacts", success: false });
+  }
 };
 
 export const downloadContactsExcel = async (req, res) => {
