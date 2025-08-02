@@ -1,12 +1,14 @@
 // Import necessary modules
 import { Course } from '../models/course.model.js'; // Assuming Course is exported from Doctor.js
 import sharp from 'sharp';
+import { Software } from '../models/software.model.js';
 
 // Add a new course entry
 export const addCourse = async (req, res) => {
     try {
         const { 
             courseName, 
+            courseUrl,
             parentCourseId, 
             duration, 
             description, 
@@ -44,6 +46,7 @@ export const addCourse = async (req, res) => {
 
         const course = new Course({
             courseName,
+            courseUrl,
             parentCourseId,
             duration,
             description,
@@ -90,6 +93,7 @@ export const getCourseById = async (req, res) => {
     try {
         const courseId = req.params.id;
         const course = await Course.findById(courseId);
+
         if (!course) {
             return res.status(404).json({ message: "Course not found!", success: false });
         }
@@ -100,12 +104,42 @@ export const getCourseById = async (req, res) => {
     }
 };
 
+export const getCourseByUrl = async (req, res) => {
+    try {
+        const courseUrl = req.params.id;
+
+        // First, find the course
+        const course = await Course.findOne({ courseUrl });
+
+        if (!course) {
+            return res.status(404).json({ message: "Course not found!", success: false });
+        }
+
+        // Then, fetch software documents matching the names in course.softwares
+        const softwares = await Software.find({ softwareName: { $in: course.softwares } });
+
+        // Attach the full software documents to the response
+        const courseWithSoftwares = {
+            ...course.toObject(), // Convert Mongoose document to plain object
+            softwares
+        };
+
+        return res.status(200).json({ course: courseWithSoftwares, success: true });
+
+    } catch (error) {
+        console.error('Error fetching course by URL:', error);
+        res.status(500).json({ message: 'Failed to fetch course', success: false });
+    }
+};
+
+
 // Update course by ID
 export const updateCourse = async (req, res) => {
     try {
         const { id } = req.params;
         const { 
             courseName, 
+            courseUrl,
             parentCourseId, 
             duration, 
             description, 
@@ -145,6 +179,7 @@ export const updateCourse = async (req, res) => {
 
         const updatedData = {
             courseName,
+            courseUrl,
             parentCourseId,
             duration,
             description,
@@ -190,6 +225,14 @@ export const deleteCourse = async (req, res) => {
     }
 };
 
+function createUrl(name) {
+    return name
+      .trim()                        // Remove extra spaces
+      .toLowerCase()                 // Convert to lowercase
+      .replace(/\s+/g, '-')          // Replace spaces with hyphens
+      .replace(/[^a-z0-9-]/g, '');   // Remove special characters except hyphens
+  }
+
 export const cloneCourse = async (req, res) => {
     try {
         const { id } = req.params;
@@ -206,14 +249,17 @@ export const cloneCourse = async (req, res) => {
 
         // Generate a new unique serviceName
         let newCourseName = courseToClone.courseName;
+        let newCourseUrl = serviceToClone.courseUrl;
         let suffix = 1;
 
         while (await Course.findOne({ courseName: newCourseName })) {
             suffix++;
             newCourseName = `${courseToClone.courseName}-${suffix}`;
+             newCourseUrl = createUrl(newCourseName)
         }
 
         clonedData.courseName = newCourseName;
+        clonedData.courseUrl = newCourseUrl;
 
         // Create a new service with the cloned data
         const clonedCourse = new Course(clonedData);

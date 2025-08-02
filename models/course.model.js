@@ -6,6 +6,11 @@ const courseSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
+    courseUrl: {
+        type: String,
+        required: true,
+        unique:true
+      },
     parentCourseId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
