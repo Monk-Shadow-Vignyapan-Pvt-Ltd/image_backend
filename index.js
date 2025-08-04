@@ -49,6 +49,7 @@ app.use("/api/v1/blogs", routes.blogRoute);
 app.use("/api/v1/studentsPlaced", routes.studentPlacedRoute);
 app.use("/api/v1/students", routes.studentRoute);
 app.use("/api/v1/batchs", routes.batchRoute);
+app.use("/api/v1/tags", routes.tagRoute);
 
 app.listen(PORT, () => {
     console.log(`server running at port ${PORT}`);

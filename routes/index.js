@@ -16,6 +16,7 @@ import blogRoute from "./blog.route.js";
 import studentPlacedRoute from "./studentsPlaced.route.js";
 import studentRoute from "./student.route.js";
 import batchRoute from "./batch.route.js";
+import tagRoute from "./tag.route.js";
 
 
 const routes = {
@@ -36,7 +37,8 @@ const routes = {
   blogRoute,
   studentPlacedRoute,
   studentRoute,
-  batchRoute
+  batchRoute,
+  tagRoute
 };
 
 export default routes;
