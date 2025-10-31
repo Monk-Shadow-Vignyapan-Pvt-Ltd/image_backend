@@ -1,5 +1,5 @@
 import express from "express";
-import { addBlog, getBlogs, getBlogById,getBlogByUrl, deleteBlog,getBlogsFrontend, updateBlog} from "../controllers/blog.controller.js";
+import { addBlog, getBlogs, getBlogById,getBlogByUrl, deleteBlog,getBlogsFrontend, updateBlog,getBlogImage} from "../controllers/blog.controller.js";
 import isAuthenticated from "../auth/isAuthenticated.js";
 import { singleUpload } from "../middleware/multer.js";
 
@@ -12,5 +12,6 @@ router.route("/getBlogByUrl/:id").put( getBlogByUrl);
 router.route("/updateBlog/:id").post( updateBlog);
 router.route("/getBlogsFrontend").get( getBlogsFrontend);
 router.route("/deleteBlog/:id").delete(deleteBlog);
+router.route("/getBlogImage/:id").get(getBlogImage);
 
 export default router;

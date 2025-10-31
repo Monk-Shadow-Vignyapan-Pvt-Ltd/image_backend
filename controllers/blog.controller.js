@@ -211,3 +211,25 @@ export const deleteBlog = async (req, res) => {
         res.status(500).json({ message: 'Failed to delete blog', success: false });
     }
 };
+
+export const getBlogImage = async (req, res) => {
+  try {
+    const blogId = req.params.id;
+    const blog = await Blog.findById(blogId).select('blogImage');
+    if (!blog) return res.status(404).json({ message: "blog not found!", success: false });
+    const matches = blog.blogImage.match(/^data:(.+);base64,(.+)$/);
+    if (!matches) {
+      return res.status(400).send('Invalid image format');
+    }
+
+    const mimeType = matches[1];
+    const base64Data = matches[2];
+    const buffer = Buffer.from(base64Data, 'base64');
+
+    res.set('Content-Type', mimeType);
+    res.send(buffer);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Failed to fetch blog image', success: false });
+  }
+};

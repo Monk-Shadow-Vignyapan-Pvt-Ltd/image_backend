@@ -275,3 +275,25 @@ export const cloneCourse = async (req, res) => {
         res.status(500).json({ message: 'Failed to clone course', success: false });
     }
 };
+
+export const getCourseImage = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const course = await Course.findById(courseId).select('thumbnail');
+    if (!course) return res.status(404).json({ message: "course not found!", success: false });
+    const matches = course.thumbnail.match(/^data:(.+);base64,(.+)$/);
+    if (!matches) {
+      return res.status(400).send('Invalid image format');
+    }
+
+    const mimeType = matches[1];
+    const base64Data = matches[2];
+    const buffer = Buffer.from(base64Data, 'base64');
+
+    res.set('Content-Type', mimeType);
+    res.send(buffer);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Failed to fetch course image', success: false });
+  }
+};
