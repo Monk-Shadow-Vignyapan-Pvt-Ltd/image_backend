@@ -253,7 +253,7 @@ export const cloneCourse = async (req, res) => {
 
         // Generate a new unique serviceName
         let newCourseName = courseToClone.courseName;
-        let newCourseUrl = serviceToClone.courseUrl;
+        let newCourseUrl = courseToClone.courseUrl;
         let suffix = 1;
 
         while (await Course.findOne({ courseName: newCourseName })) {
