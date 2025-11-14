@@ -5,6 +5,8 @@ import { Seo } from '../models/seo.model.js';
 import jwt from "jsonwebtoken";
 import bcryptjs from "bcryptjs";
 import sharp from 'sharp';
+import path from "path";
+import fs from "fs";
 
 // Signup Controller
 export const addUser = async (req, res) => {
