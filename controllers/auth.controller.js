@@ -1,4 +1,7 @@
 import { User } from '../models/user.model.js';
+import { Course } from '../models/course.model.js'; 
+import { Blog } from '../models/blog.model.js';
+import { Seo } from '../models/seo.model.js';
 import jwt from "jsonwebtoken";
 import bcryptjs from "bcryptjs";
 import sharp from 'sharp';
@@ -190,5 +193,97 @@ export const deleteUser = async (req, res) => {
         console.log(error);
         res.status(500).json({ message: 'Failed to delete user', success: false });
     }
+};
+
+const getDynamicRoutes = async () => {
+  try {
+  
+      const courses = await Course.find().select('courseUrl courseEnabled');
+      const blogs = await Blog.find().select('blogUrl');
+      const seoEntries = await Seo.find();
+
+      const enabledCourses = courses?.filter(course => course.courseEnabled)
+
+
+      const courseRoutes = enabledCourses?.map(course => `/course-detail/${course.courseUrl}`) || [];
+      const blogRoutes = blogs?.map(blog => `/blogs/${blog.blogUrl}`) || [];
+      const seoRoutes = seoEntries?.map(seo => `/${seo.seoUrl}`) || [];
+
+      return [...courseRoutes,  ...blogRoutes, ...seoRoutes];
+  } catch (error) {
+      console.error("Error fetching dynamic routes:", error);
+      return [];
+  }
+};
+
+export const generateSitemap = async (req = null, res = null) => {
+  try {
+    const dynamicRoutes = await getDynamicRoutes();
+
+    const urls = [
+      { url: "/", changefreq: "daily", priority: 1.0 },
+      // { url: "/privacy-policy", changefreq: "monthly", priority: 0.7 },
+      ...dynamicRoutes.map(route => ({ url: route, changefreq: "daily", priority: 0.8 })),
+    ];
+
+    // Generate XML Sitemap
+    const sitemapContent = `
+      <?xml version="1.0" encoding="UTF-8"?>
+      <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+        ${urls
+          .map(
+            ({ url, changefreq, priority }) => `
+          <url>
+            <loc>https://learnatimage.com${url}</loc>
+            <changefreq>${changefreq}</changefreq>
+            <priority>${priority}</priority>
+          </url>`
+          )
+          .join("\n")}
+      </urlset>
+    `.trim();
+
+    const sitemapPath = "../../../../learnatimage/public_html/dist/sitemap.xml" // Save in `public` folder
+    fs.writeFileSync(sitemapPath, sitemapContent,'utf8');
+    console.log(`Sitemap XML generated at: ${sitemapPath}`);
+
+    // Generate HTML Sitemap
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>HTML Sitemap</title>
+          <style>
+              body { font-family: Arial, sans-serif; padding: 20px; }
+              h1 { color: #333; }
+              ul { list-style-type: none; padding: 0; }
+              li { margin: 5px 0; }
+              a { text-decoration: none; color: blue; }
+          </style>
+      </head>
+      <body>
+          <h1>HTML Sitemap</h1>
+          <ul>
+              ${dynamicRoutes
+                .map(route => `<li><a href="https://learnatimage.com${route}">https://learnatimage.com${route}</a></li>`)
+                .join("\n")}
+          </ul>
+      </body>
+      </html>
+    `.trim();
+
+    const sitemapHTMLPath = "../../../../learnatimage/public_html/dist/sitemap.html"; // Save in `public` folder
+    fs.writeFileSync(sitemapHTMLPath, htmlContent,'utf8');
+    console.log(`Sitemap HTML generated at: ${sitemapHTMLPath}`);
+
+    if (res) {
+      return res.status(200).json({ message: "Sitemap generated successfully", success: true });
+    }
+  } catch (error) {
+    console.error("Error generating sitemap:", error);
+    res.status(500).json({ message: "Failed to generate sitemap", success: false });
+  }
 };
 

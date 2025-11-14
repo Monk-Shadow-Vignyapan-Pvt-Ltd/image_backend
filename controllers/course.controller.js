@@ -180,6 +180,17 @@ export const updateCourse = async (req, res) => {
             compressedBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
         }
 
+        const existingCourse = await Course.findById(id);
+                        if (!existingCourse) {
+                            return res.status(404).json({ message: "Course not found!", success: false });
+                        }
+                
+                        // Initialize oldUrls array and add the previous serviceUrl if it's different
+                        let oldUrls = existingCourse.oldUrls || [];
+                        if (existingCourse.courseUrl && existingCourse.courseUrl !== courseUrl && !oldUrls.includes(existingCourse.courseUrl)) {
+                            oldUrls.push(existingCourse.courseUrl);
+                        }
+
         const updatedData = {
             courseName,
             courseUrl,
@@ -187,7 +198,7 @@ export const updateCourse = async (req, res) => {
             duration,
             description,
             ...(compressedBase64 && { thumbnail: compressedBase64 }),
-            seoTitle,seoDescription,schema,
+            seoTitle,seoDescription,schema,oldUrls,
             nextBatchStartDate,
             isDemoAvailable,
             difficulty,

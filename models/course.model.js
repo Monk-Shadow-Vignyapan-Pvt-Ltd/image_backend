@@ -87,6 +87,10 @@ const courseSchema = new mongoose.Schema({
       type: String, // Store image as base64 or use a URL reference
       required: false,
     },
+    oldUrls: {
+                      type: mongoose.Schema.Types.Mixed,  // Use Mixed for flexible structure (JSON-like object)
+                      required: false
+                  },
     userId:{
         type: mongoose.Schema.Types.ObjectId, 
           required:false

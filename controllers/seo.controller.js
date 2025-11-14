@@ -1,47 +1,56 @@
 import { Seo } from '../models/seo.model.js';
+import { Blog } from '../models/blog.model.js';
+import { Course } from '../models/course.model.js';
 
 // Add a new SEO entry
 export const addSeo = async (req, res) => {
     try {
-        const { pageName, seoTitle, seoDescription, blogOrServiceId, seoUrl } = req.body;
+        const { pageName, seoTitle, seoDescription, seoUrl, schema } = req.body;
 
         // Validate required fields
         if (!pageName || !seoTitle || !seoUrl) {
             return res.status(400).json({ message: 'Page Name, SEO title and URL are required', success: false });
         }
 
-        // Make seoUrl URL-friendly using regex
+        // Make seoUrl URL-friendly
         const urlFriendlySeoUrl = seoUrl
-            .trim()                            // Remove leading and trailing spaces
-            .toLowerCase()                     // Convert to lowercase
-            .replace(/[^a-z0-9\s-]/g, '')       // Remove special characters (except for hyphens and spaces)
-            .replace(/\s+/g, '-')               // Replace spaces with hyphens
-            .replace(/-+/g, '-');               // Replace multiple hyphens with a single hyphen
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-');
 
         const existingSeo = await Seo.findOne({ pageName });
-            if (existingSeo) {
-                existingSeo.pageName = pageName;
-                existingSeo.seoTitle = seoTitle;
-                existingSeo.seoDescription = seoDescription;
-                existingSeo.blogOrServiceId = blogOrServiceId;
-                existingSeo.seoUrl = urlFriendlySeoUrl;
-    
-                // Save the updated contact
-                await existingSeo.save();
-    
-                return res.status(200).json({ 
-                    message: 'Seo updated successfully', 
-                    seo: existingSeo, 
-                    success: true 
-                });
+
+        if (existingSeo) {
+            let oldUrls = existingSeo.oldUrls || [];
+
+            if (existingSeo.seoUrl && existingSeo.seoUrl !== urlFriendlySeoUrl && !oldUrls.includes(existingSeo.seoUrl)) {
+                oldUrls.push(existingSeo.seoUrl);
             }
+
+            existingSeo.pageName = pageName;
+            existingSeo.seoTitle = seoTitle;
+            existingSeo.seoDescription = seoDescription;
+            existingSeo.seoUrl = urlFriendlySeoUrl;
+            existingSeo.oldUrls = oldUrls;
+            existingSeo.schema = schema;
+
+            const updatedSeo = await Seo.findByIdAndUpdate(existingSeo._id, existingSeo, { new: true, runValidators: true });
+
+            return res.status(200).json({
+                message: 'Seo updated successfully',
+                seo: updatedSeo,
+                success: true
+            });
+        }
 
         const seoEntry = new Seo({
             pageName,
             seoTitle,
             seoDescription,
-            seoUrl: urlFriendlySeoUrl,  // Use the cleaned, URL-friendly seoUrl
-            blogOrServiceId
+            schema,
+            seoUrl: urlFriendlySeoUrl,
         });
 
         await seoEntry.save();
@@ -53,14 +62,24 @@ export const addSeo = async (req, res) => {
 };
 
 
+
 // Get all SEO entries
 export const getAllSeo = async (req, res) => {
     try {
         const seoEntries = await Seo.find();
-        if (!seoEntries || seoEntries.length === 0) {
+        if (!seoEntries) {
             return res.status(404).json({ message: "No SEO entries found", success: false });
         }
-        res.status(200).json({ seoEntries, success: true });
+        const courses = await Course.find().select('courseUrl oldUrls');
+        const blogs = await Blog.find().select('blogUrl oldUrls');
+
+        const mergedEntries = {
+            seoEntries, // Keep it as an array
+            courses,
+            blogs
+        };
+
+        res.status(200).json({ seoEntries:mergedEntries, success: true });
     } catch (error) {
         console.error('Error fetching SEO entries:', error);
         res.status(500).json({ message: 'Failed to fetch SEO entries', success: false });
@@ -109,7 +128,7 @@ export const getSeoByPageName = async (req, res) => {
 export const updateSeo = async (req, res) => {
     try {
         const { id } = req.params;
-        const { pageName,seoTitle, seoDescription,blogOrServiceId, seoUrl } = req.body;
+        const { pageName,seoTitle, seoDescription, seoUrl } = req.body;
 
         // Validate required fields
         if (!pageName || !seoTitle || !seoUrl) {
@@ -120,7 +139,6 @@ export const updateSeo = async (req, res) => {
             ...(seoTitle && { seoTitle }),
             ...(pageName && { pageName }),
             ...(seoDescription && { seoDescription }),
-            ...(blogOrServiceId && { blogOrServiceId }),
             ...(seoUrl && { seoUrl }),
         };
 

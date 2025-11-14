@@ -1,6 +1,6 @@
 import express from "express";
 import {auth} from "../middleware/auth.js"
-import { addUser, login, tokenIsValid, getUser,getUsers,updateUser,deleteUser} from "../controllers/auth.controller.js";
+import { addUser, login, tokenIsValid, getUser,getUsers,updateUser,deleteUser,generateSitemap} from "../controllers/auth.controller.js";
 
 const router = express.Router();
 
@@ -11,5 +11,6 @@ router.route("/getUser").get(auth, getUser);
 router.route("/getUsers").get( getUsers);
 router.route("/updateUser/:id").post( updateUser);
 router.route("/deleteUser/:id").delete( deleteUser);
+router.route("/generateSitemap").get( generateSitemap);
 
 export default router;
