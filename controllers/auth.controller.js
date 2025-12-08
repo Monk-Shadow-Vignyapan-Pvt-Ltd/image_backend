@@ -245,7 +245,7 @@ export const generateSitemap = async (req = null, res = null) => {
       </urlset>
     `.trim();
 
-    const sitemapPath = "../../../../learnatimage/public_html/dist/sitemap.xml" // Save in `public` folder
+    const sitemapPath = "../../../public_html/dist/sitemap.xml" // Save in `public` folder
     fs.writeFileSync(sitemapPath, sitemapContent,'utf8');
     console.log(`Sitemap XML generated at: ${sitemapPath}`);
 
@@ -276,7 +276,7 @@ export const generateSitemap = async (req = null, res = null) => {
       </html>
     `.trim();
 
-    const sitemapHTMLPath = "../../../../learnatimage/public_html/dist/sitemap.html"; // Save in `public` folder
+    const sitemapHTMLPath = "../../../public_html/dist/sitemap.html"; // Save in `public` folder
     fs.writeFileSync(sitemapHTMLPath, htmlContent,'utf8');
     console.log(`Sitemap HTML generated at: ${sitemapHTMLPath}`);
 
