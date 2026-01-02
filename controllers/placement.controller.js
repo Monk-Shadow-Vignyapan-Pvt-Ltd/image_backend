@@ -2,41 +2,58 @@
 import { Placement } from '../models/placement.model.js';
 import sharp from 'sharp';
 
-// Add a new placement entry
 export const addPlacement = async (req, res) => {
-    try {
-        const { placementImage,placementName, userId } = req.body;
+  try {
+    const { placementImage, placementName, userId } = req.body;
 
-        if (!placementImage || !placementName || !placementImage.startsWith('data:image')) {
-            return res.status(400).json({ message: 'Invalid image data', success: false });
-        }
-
-        const base64Data = placementImage.split(';base64,').pop();
-        const buffer = Buffer.from(base64Data, 'base64');
-
-        // Resize and compress the image using sharp
-        const compressedBuffer = await sharp(buffer)
-            .resize(800, 600, { fit: 'inside' }) // Resize to 800x600 max, maintaining aspect ratio
-            .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
-            .toBuffer();
-
-        // Convert back to Base64 for storage (optional)
-        const compressedBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
-
-        // Create and save the placement details in MongoDB
-        const placement = new Placement({
-            placementImage: compressedBase64,
-            placementName,
-            userId
-        });
-
-        await placement.save();
-        res.status(201).json({ placement, success: true });
-    } catch (error) {
-        console.error('Error adding placement:', error);
-        res.status(500).json({ message: 'Failed to add placement', success: false });
+    if (!placementImage || !placementName || !placementImage.startsWith("data:image")) {
+      return res.status(400).json({ message: "Invalid image data", success: false });
     }
+
+    // Extract base64 & mime type
+    const matches = placementImage.match(/^data:(image\/\w+);base64,(.+)$/);
+    if (!matches) {
+      return res.status(400).json({ message: "Invalid image format", success: false });
+    }
+
+    const mimeType = matches[1];        // image/jpeg | image/png | image/webp
+    const base64Data = matches[2];
+    const buffer = Buffer.from(base64Data, "base64");
+
+    let sharpImage = sharp(buffer);
+
+    // 🔥 Compress WITHOUT resizing or format change
+    if (mimeType === "image/jpeg") {
+      sharpImage = sharpImage.jpeg({ quality: 80, mozjpeg: true });
+    } else if (mimeType === "image/png") {
+      sharpImage = sharpImage.png({
+        compressionLevel: 9,
+        adaptiveFiltering: true,
+      });
+    } else if (mimeType === "image/webp") {
+      sharpImage = sharpImage.webp({ quality: 80 });
+    }
+
+    const compressedBuffer = await sharpImage.toBuffer();
+
+    // Convert back to Base64 (same format)
+    const compressedBase64 = `data:${mimeType};base64,${compressedBuffer.toString("base64")}`;
+
+    const placement = new Placement({
+      placementImage: compressedBase64,
+      placementName,
+      userId,
+    });
+
+    await placement.save();
+
+    res.status(201).json({ placement, success: true });
+  } catch (error) {
+    console.error("Error adding placement:", error);
+    res.status(500).json({ message: "Failed to add placement", success: false });
+  }
 };
+
 
 // Get all placement entries
 export const getPlacements = async (req, res) => {
@@ -73,24 +90,33 @@ export const updatePlacement = async (req, res) => {
         const { id } = req.params;
         const { placementImage,placementName, userId } = req.body;
 
-        // Validate and process image if provided
-        let compressedBase64;
-        if (placementImage) {
-            if (!placementImage.startsWith('data:image')) {
-                return res.status(400).json({ message: 'Invalid image data', success: false });
-            }
-
-            const base64Data = placementImage.split(';base64,').pop();
-            const buffer = Buffer.from(base64Data, 'base64');
-
-            // Resize and compress the image using sharp
-            const compressedBuffer = await sharp(buffer)
-                .resize(800, 600, { fit: 'inside' })
-                .jpeg({ quality: 80 })
-                .toBuffer();
-
-            compressedBase64 = `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+        const matches = placementImage.match(/^data:(image\/\w+);base64,(.+)$/);
+        if (!matches) {
+        return res.status(400).json({ message: "Invalid image format", success: false });
         }
+
+        const mimeType = matches[1];        // image/jpeg | image/png | image/webp
+        const base64Data = matches[2];
+        const buffer = Buffer.from(base64Data, "base64");
+
+        let sharpImage = sharp(buffer);
+
+        // 🔥 Compress WITHOUT resizing or format change
+        if (mimeType === "image/jpeg") {
+        sharpImage = sharpImage.jpeg({ quality: 80, mozjpeg: true });
+        } else if (mimeType === "image/png") {
+        sharpImage = sharpImage.png({
+            compressionLevel: 9,
+            adaptiveFiltering: true,
+        });
+        } else if (mimeType === "image/webp") {
+        sharpImage = sharpImage.webp({ quality: 80 });
+        }
+
+        const compressedBuffer = await sharpImage.toBuffer();
+
+        // Convert back to Base64 (same format)
+        const compressedBase64 = `data:${mimeType};base64,${compressedBuffer.toString("base64")}`;
 
         const updatedData = {
             ...(compressedBase64 && { placementImage: compressedBase64 }),
